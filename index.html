@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SafeBrowse Advanced Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;background:#eef2ff;margin:0}
+.card{background:#fff;padding:20px;border-radius:14px;max-width:420px;margin:40px auto;box-shadow:0 10px 20px rgba(0,0,0,.15)}
+input,select,button{width:100%;padding:12px;margin-top:10px;border-radius:8px}
+button{background:#4f46e5;color:white;border:none;font-size:16px}
+.warning{background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:10px}
+.safe{background:#dcfce7;color:#166534;padding:12px;border-radius:10px;margin-top:10px}
+.small{font-size:13px;color:#555}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔐 SafeBrowse Browser</h2>
+
+  <input id="email" placeholder="Parent Email">
+  <input id="age" type="number" placeholder="Child Age">
+
+  <input id="url" placeholder="Enter Website URL">
+  <button onclick="check()">Open Website</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const adultWords = ["sex","porn","adult","nude","xxx","🍆","🍑"];
+
+function check(){
+  let age = parseInt(document.getElementById("age").value);
+  let email = document.getElementById("email").value;
+  let url = document.getElementById("url").value.toLowerCase();
+  let result = document.getElementById("result");
+
+  let unsafe = adultWords.some(w => url.includes(w));
+
+  if(age < 13 && unsafe){
+    result.innerHTML = `
+      <div class="warning">
+        🚫 Blocked: Unsafe for child under 13
+      </div>
+      <button onclick="notify('${email}','${url}')">Send Alert Email</button>
+    `;
+  } else {
+    maximizeSecurity(url);
+  }
+}
+
+function maximizeSecurity(url){
+  document.getElementById("result").innerHTML =
+    "<div class='safe'>✅ Allowed: Opening website</div>";
+  window.open("https://" + url.replace("https://",""), "_blank");
+}
+
+function notify(email, site){
+  window.location.href =
+   `mailto:${email}?subject=SafeBrowse Alert&body=Unsafe website blocked: ${site}`;
+}
+</script>
+
+</body>
+</html>
