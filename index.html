@@ -1,77 +1,147 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBrowse Search</title>
+    <title>SafeBrowse Pro</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f9; display: flex; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { margin-top: 0; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; height: 100vh; align-items: center; margin: 0; }
         
-        /* Parent Email Label */
-        label { display: block; text-align: left; font-size: 12px; color: #555; margin-top: 15px; font-weight: bold; }
-        
-        /* LOCKED EMAIL BOX STYLE */
-        .locked-input { 
-            width: 100%; padding: 12px; margin: 5px 0 15px 0; 
-            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; 
-            background-color: #e9ecef; /* Grey background */
-            color: #495057; 
-            cursor: not-allowed; /* Shows 'ban' cursor on PC */
+        .card { 
+            background: white; padding: 35px; border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            text-align: center; width: 90%; max-width: 400px; position: relative;
         }
+
+        h2 { color: #333; margin-top: 0; margin-bottom: 5px; }
+        p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
         
-        input[type="text"] { width: 100%; padding: 12px; margin: 5px 0 20px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        
-        .btn-group { display: flex; gap: 10px; justify-content: center; }
-        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; flex: 1; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        
+        /* Input Styling */
+        input { 
+            width: 100%; padding: 14px; margin: 8px 0 20px 0; 
+            border: 2px solid #e1e4e8; border-radius: 12px; 
+            font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: #4CAF50; }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%; padding: 15px; background: #28a745; 
+            color: white; border: none; border-radius: 12px; 
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-app { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
         .google { background: #4285F4; }
         .youtube { background: #FF0000; }
         .wiki { background: #000; }
-        
-        #msg { margin-top: 15px; padding: 15px; display: none; border-radius: 8px; font-size: 14px; line-height: 1.4; }
+
+        /* Status & Icons */
+        .icon-large { font-size: 45px; margin-bottom: 10px; display: block; }
+        #msg { margin-top: 15px; padding: 15px; display: none; border-radius: 10px; font-size: 13px; text-align: left; }
         .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .safe { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+        /* Settings Icon */
+        .settings-icon {
+            position: absolute; top: 20px; right: 20px; 
+            font-size: 20px; color: #ccc; cursor: pointer;
+        }
+
+        /* Logic: Hide Search Screen by default */
+        #searchScreen { display: none; }
     </style>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function(){
-            // ✅ PUBLIC KEY (Verified from your screenshot)
-            // If this still fails, please manually re-copy it from your dashboard
+            // ✅ Your Verified Public Key
             emailjs.init("ow7lbBw-29UnryhgE"); 
         })();
     </script>
 </head>
 <body>
 
-<div class="card">
-    <h2>🦁 SafeBrowse</h2>
-    
-    <label>🔒 Parent Alert Email (Fixed):</label>
-    <input type="text" class="locked-input" value="eone3951@gmail.com" readonly>
+    <div class="card">
+        
+        <div id="setupScreen">
+            <span class="icon-large">🛡️</span>
+            <h2>Parent Setup</h2>
+            <p>Configure security settings before handing device to child.</p>
+            
+            <div style="text-align: left; font-weight: bold; font-size: 12px; color: #555; margin-left: 5px;">Parent's Email</div>
+            <input type="email" id="parentEmail" placeholder="e.g. dad@gmail.com">
 
-    <label>Search:</label>
-    <input type="text" id="searchBox" placeholder="Type here (e.g. 'kill')">
-    
-    <div class="btn-group">
-        <button class="google" onclick="check('google')">Google</button>
-        <button class="youtube" onclick="check('youtube')">YouTube</button>
-        <button class="wiki" onclick="check('wiki')">Wiki</button>
+            <div style="text-align: left; font-weight: bold; font-size: 12px; color: #555; margin-left: 5px;">Create PIN Code</div>
+            <input type="number" id="parentPin" placeholder="e.g. 1234">
+
+            <button class="btn-primary" onclick="activateSafeMode()">Activate Safe Mode</button>
+        </div>
+
+        <div id="searchScreen">
+            <div class="settings-icon" onclick="unlockSettings()">⚙️</div>
+
+            <span class="icon-large">🦁</span>
+            <h2>SafeBrowse Kids</h2>
+            <p>Secure Search Engine</p>
+
+            <input type="text" id="searchBox" placeholder="Search the web safely...">
+            
+            <div class="btn-group">
+                <button class="btn-app google" onclick="check('google')">Google</button>
+                <button class="btn-app youtube" onclick="check('youtube')">YouTube</button>
+                <button class="btn-app wiki" onclick="check('wiki')">Wiki</button>
+            </div>
+
+            <div id="msg"></div>
+        </div>
+
     </div>
 
-    <div id="msg"></div>
-</div>
-
 <script>
-    // ✅ IDs verified from your screenshots
+    // ✅ Your Verified Keys
     const serviceID = "service_w6e9m0l";
     const templateID = "template_42tnaeh";
 
-    const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+", "murder", "gun", "suicide", "bomb"];
+    const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+", "murder", "gun", "suicide", "bomb", "weapon"];
+    
+    // Variables to store Parent Settings
+    let configuredEmail = "";
+    let configuredPin = "";
 
+    // 1. ACTIVATE PROTECTION
+    function activateSafeMode() {
+        let email = document.getElementById("parentEmail").value;
+        let pin = document.getElementById("parentPin").value;
+
+        if (!email.includes("@") || pin.length < 1) {
+            alert("Please enter a valid Email and a PIN code.");
+            return;
+        }
+
+        configuredEmail = email;
+        configuredPin = pin;
+
+        // Switch to Child Screen
+        document.getElementById("setupScreen").style.display = "none";
+        document.getElementById("searchScreen").style.display = "block";
+    }
+
+    // 2. UNLOCK SETTINGS (Requires PIN)
+    function unlockSettings() {
+        let attempt = prompt("Enter Parent PIN to unlock settings:");
+        if (attempt === configuredPin) {
+            document.getElementById("searchScreen").style.display = "none";
+            document.getElementById("setupScreen").style.display = "block";
+        } else {
+            alert("Incorrect PIN!");
+        }
+    }
+
+    // 3. CHECK SEARCH CONTENT
     function check(platform) {
         let text = document.getElementById("searchBox").value.toLowerCase();
         let msgBox = document.getElementById("msg");
@@ -81,28 +151,28 @@
         let isUnsafe = badWords.some(w => text.includes(w));
 
         if (isUnsafe) {
-            // --- BLOCKED ---
+            // --- DANGER: SEND ALERT ---
             msgBox.style.display = "block";
             msgBox.className = "error";
-            msgBox.innerHTML = `⚠️ <b>BLOCKED</b><br>Sending alert to parent...`;
+            msgBox.innerHTML = `⚠️ <b>BLOCKED CONTENT</b><br>Sending automatic alert to parent...`;
 
+            // Send Email via EmailJS
             emailjs.send(serviceID, templateID, {
                 message: text,
-                to_name: "Parent"
+                to_name: "Parent (" + configuredEmail + ")"
             })
             .then(() => {
-                msgBox.innerHTML = `🚫 <b>BLOCKED</b><br>Alert successfully sent to <b>eone3951@gmail.com</b>!`;
+                msgBox.innerHTML = `🚫 <b>ACCESS DENIED</b><br>Security Alert sent to <b>${configuredEmail}</b>.`;
             })
             .catch((err) => {
-                // If you see this error, it means the Public Key is still wrong
-                msgBox.innerHTML = "🚫 BLOCKED. (Error: " + JSON.stringify(err) + ")";
+                msgBox.innerHTML = "🚫 BLOCKED. (System Error: " + JSON.stringify(err) + ")";
             });
 
         } else {
-            // --- SAFE ---
+            // --- SAFE: OPEN LINK ---
             msgBox.style.display = "block";
             msgBox.className = "safe";
-            msgBox.innerHTML = "✅ Safe content. Opening...";
+            msgBox.innerHTML = "✅ Safe content. Redirecting...";
             
             setTimeout(() => {
                 if(platform === 'google') window.location.href = "https://www.google.com/search?q=" + text;
