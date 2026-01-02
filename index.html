@@ -1,57 +1,62 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SafeBrowse Pro</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; height: 100vh; align-items: center; margin: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f2f2f7; display: flex; justify-content: center; height: 100vh; align-items: center; margin: 0; }
         
-        .card { 
-            background: white; padding: 35px; border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
-            text-align: center; width: 90%; max-width: 400px; position: relative;
+        .app-container { 
+            background: white; width: 90%; max-width: 400px; 
+            padding: 30px; border-radius: 24px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+            text-align: center; position: relative; overflow: hidden;
         }
 
-        h2 { color: #333; margin-top: 0; margin-bottom: 5px; }
-        p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+        h2 { margin: 10px 0 5px 0; color: #1c1c1e; }
+        p { color: #8e8e93; font-size: 14px; margin-bottom: 25px; }
         
-        /* Input Styling */
+        /* Form Styling */
+        .label { text-align: left; font-weight: 600; font-size: 13px; color: #666; margin-left: 5px; margin-top: 15px; }
+        
         input { 
-            width: 100%; padding: 14px; margin: 8px 0 20px 0; 
-            border: 2px solid #e1e4e8; border-radius: 12px; 
-            font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s;
+            width: 100%; padding: 14px; margin: 8px 0; 
+            border: 2px solid #e5e5ea; border-radius: 14px; 
+            font-size: 16px; box-sizing: border-box; outline: none; transition: 0.2s;
+            background: #f9f9f9;
         }
-        input:focus { border-color: #4CAF50; }
+        input:focus { border-color: #007aff; background: #fff; }
 
         /* Buttons */
         .btn-primary {
-            width: 100%; padding: 15px; background: #28a745; 
-            color: white; border: none; border-radius: 12px; 
-            font-size: 16px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+            width: 100%; padding: 16px; background: #007aff; 
+            color: white; border: none; border-radius: 14px; 
+            font-size: 17px; font-weight: 600; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); transition: 0.2s;
         }
-        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:active { transform: scale(0.96); }
 
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-app { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-icon { 
+            flex: 1; padding: 12px; border: none; border-radius: 12px; 
+            color: white; font-weight: bold; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
         .google { background: #4285F4; }
         .youtube { background: #FF0000; }
         .wiki { background: #000; }
 
-        /* Status & Icons */
-        .icon-large { font-size: 45px; margin-bottom: 10px; display: block; }
-        #msg { margin-top: 15px; padding: 15px; display: none; border-radius: 10px; font-size: 13px; text-align: left; }
-        .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .safe { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        /* Status Messages */
+        #msg { margin-top: 20px; padding: 15px; display: none; border-radius: 12px; font-size: 14px; text-align: left; line-height: 1.5; }
+        .error { background: #fff2f2; color: #d32f2f; border: 1px solid #ffcdd2; }
+        .safe { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 
-        /* Settings Icon */
-        .settings-icon {
-            position: absolute; top: 20px; right: 20px; 
-            font-size: 20px; color: #ccc; cursor: pointer;
-        }
+        /* Icons */
+        .settings-btn { position: absolute; top: 20px; right: 20px; font-size: 22px; color: #c7c7cc; cursor: pointer; }
+        .emoji-logo { font-size: 48px; display: block; margin-bottom: 10px; }
 
-        /* Logic: Hide Search Screen by default */
+        /* Screens */
         #searchScreen { display: none; }
     </style>
     
@@ -65,35 +70,38 @@
 </head>
 <body>
 
-    <div class="card">
+    <div class="app-container">
         
         <div id="setupScreen">
-            <span class="icon-large">🛡️</span>
-            <h2>Parent Setup</h2>
-            <p>Configure security settings before handing device to child.</p>
+            <span class="emoji-logo">🛡️</span>
+            <h2>Parent Control</h2>
+            <p>Setup security before handing to child.</p>
             
-            <div style="text-align: left; font-weight: bold; font-size: 12px; color: #555; margin-left: 5px;">Parent's Email</div>
-            <input type="email" id="parentEmail" placeholder="e.g. dad@gmail.com">
+            <div class="label">Parent's Email (For Alerts)</div>
+            <input type="email" id="parentEmail" placeholder="parent@gmail.com">
 
-            <div style="text-align: left; font-weight: bold; font-size: 12px; color: #555; margin-left: 5px;">Create PIN Code</div>
-            <input type="number" id="parentPin" placeholder="e.g. 1234">
+            <div class="label">Child's Age</div>
+            <input type="number" id="childAge" placeholder="e.g. 10">
 
-            <button class="btn-primary" onclick="activateSafeMode()">Activate Safe Mode</button>
+            <div class="label">Create Admin PIN</div>
+            <input type="tel" id="parentPin" placeholder="e.g. 1234" maxlength="4">
+
+            <button class="btn-primary" onclick="saveAndStart()">Activate Protection</button>
         </div>
 
         <div id="searchScreen">
-            <div class="settings-icon" onclick="unlockSettings()">⚙️</div>
+            <div class="settings-btn" onclick="unlockSettings()">⚙️</div>
 
-            <span class="icon-large">🦁</span>
-            <h2>SafeBrowse Kids</h2>
-            <p>Secure Search Engine</p>
+            <span class="emoji-logo">🦁</span>
+            <h2>SafeBrowse</h2>
+            <p>Safe Search for Kids</p>
 
-            <input type="text" id="searchBox" placeholder="Search the web safely...">
+            <input type="text" id="searchBox" placeholder="Search web safely...">
             
             <div class="btn-group">
-                <button class="btn-app google" onclick="check('google')">Google</button>
-                <button class="btn-app youtube" onclick="check('youtube')">YouTube</button>
-                <button class="btn-app wiki" onclick="check('wiki')">Wiki</button>
+                <button class="btn-icon google" onclick="check('google')">Google</button>
+                <button class="btn-icon youtube" onclick="check('youtube')">YouTube</button>
+                <button class="btn-icon wiki" onclick="check('wiki')">Wiki</button>
             </div>
 
             <div id="msg"></div>
@@ -106,70 +114,94 @@
     const serviceID = "service_w6e9m0l";
     const templateID = "template_42tnaeh";
 
-    const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+", "murder", "gun", "suicide", "bomb", "weapon"];
-    
-    // Variables to store Parent Settings
-    let configuredEmail = "";
-    let configuredPin = "";
+    const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+", "murder", "gun", "suicide", "bomb", "blood", "die"];
 
-    // 1. ACTIVATE PROTECTION
-    function activateSafeMode() {
+    // App State
+    let settings = {
+        email: "",
+        age: "",
+        pin: ""
+    };
+
+    // 1. Load Settings from Memory (if available)
+    window.onload = function() {
+        let saved = localStorage.getItem("safeBrowseSettings");
+        if (saved) {
+            settings = JSON.parse(saved);
+            showSearchScreen(); // Auto-login if settings exist
+        }
+    };
+
+    // 2. Save Settings & Start App
+    function saveAndStart() {
         let email = document.getElementById("parentEmail").value;
+        let age = document.getElementById("childAge").value;
         let pin = document.getElementById("parentPin").value;
 
-        if (!email.includes("@") || pin.length < 1) {
-            alert("Please enter a valid Email and a PIN code.");
+        if (!email.includes("@") || age === "" || pin.length < 1) {
+            alert("⚠️ Please fill in all fields correctly.");
             return;
         }
 
-        configuredEmail = email;
-        configuredPin = pin;
+        settings = { email: email, age: age, pin: pin };
+        localStorage.setItem("safeBrowseSettings", JSON.stringify(settings)); // Save to phone memory
+        
+        showSearchScreen();
+    }
 
-        // Switch to Child Screen
+    function showSearchScreen() {
         document.getElementById("setupScreen").style.display = "none";
         document.getElementById("searchScreen").style.display = "block";
     }
 
-    // 2. UNLOCK SETTINGS (Requires PIN)
+    // 3. Unlock Settings (Requires PIN)
     function unlockSettings() {
-        let attempt = prompt("Enter Parent PIN to unlock settings:");
-        if (attempt === configuredPin) {
+        let inputPin = prompt("🔒 Enter Admin PIN to unlock settings:");
+        if (inputPin === settings.pin) {
             document.getElementById("searchScreen").style.display = "none";
             document.getElementById("setupScreen").style.display = "block";
-        } else {
-            alert("Incorrect PIN!");
+            // Pre-fill inputs
+            document.getElementById("parentEmail").value = settings.email;
+            document.getElementById("childAge").value = settings.age;
+            document.getElementById("parentPin").value = settings.pin;
+        } else if (inputPin !== null) {
+            alert("❌ Incorrect PIN!");
         }
     }
 
-    // 3. CHECK SEARCH CONTENT
+    // 4. MAIN SECURITY CHECK LOGIC
     function check(platform) {
         let text = document.getElementById("searchBox").value.toLowerCase();
         let msgBox = document.getElementById("msg");
 
-        if(!text) return alert("Please type something!");
+        if(!text) return alert("Please type something to search.");
 
         let isUnsafe = badWords.some(w => text.includes(w));
 
         if (isUnsafe) {
-            // --- DANGER: SEND ALERT ---
+            // --- BLOCKED: SEND EMAIL ---
             msgBox.style.display = "block";
             msgBox.className = "error";
-            msgBox.innerHTML = `⚠️ <b>BLOCKED CONTENT</b><br>Sending automatic alert to parent...`;
+            msgBox.innerHTML = `⚠️ <b>BLOCKED CONTENT</b><br>Sending alert to parent...`;
 
-            // Send Email via EmailJS
+            // PREPARE EMAIL CONTENT
+            // We put the Age and Search Term inside the "message" variable
+            let emailMessage = `SEARCH: "${text}" | CHILD AGE: ${settings.age} | TARGET PARENT: ${settings.email}`;
+
             emailjs.send(serviceID, templateID, {
-                message: text,
-                to_name: "Parent (" + configuredEmail + ")"
+                message: emailMessage,
+                to_name: "Admin"
             })
             .then(() => {
-                msgBox.innerHTML = `🚫 <b>ACCESS DENIED</b><br>Security Alert sent to <b>${configuredEmail}</b>.`;
+                msgBox.innerHTML = `🚫 <b>ACCESS DENIED</b><br>Security Alert sent to <b>${settings.email}</b>.`;
             })
             .catch((err) => {
-                msgBox.innerHTML = "🚫 BLOCKED. (System Error: " + JSON.stringify(err) + ")";
+                msgBox.innerHTML = "🚫 BLOCKED. (Network Error)";
+                console.error(err);
             });
 
         } else {
-            // --- SAFE: OPEN LINK ---
+            // --- SAFE: OPEN ---
             msgBox.style.display = "block";
             msgBox.className = "safe";
             msgBox.innerHTML = "✅ Safe content. Redirecting...";
