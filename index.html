@@ -8,10 +8,22 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f4f9; display: flex; justify-content: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #333; }
-        label { display: block; text-align: left; font-size: 12px; color: #555; margin-top: 10px; font-weight: bold; }
-        input { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        /* Parent Email Label */
+        label { display: block; text-align: left; font-size: 12px; color: #555; margin-top: 15px; font-weight: bold; }
+        
+        /* LOCKED EMAIL BOX STYLE */
+        .locked-input { 
+            width: 100%; padding: 12px; margin: 5px 0 15px 0; 
+            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; 
+            background-color: #e9ecef; /* Grey background */
+            color: #495057; 
+            cursor: not-allowed; /* Shows 'ban' cursor on PC */
+        }
+        
+        input[type="text"] { width: 100%; padding: 12px; margin: 5px 0 20px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
         button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; flex: 1; transition: 0.2s; }
         button:active { transform: scale(0.98); }
         
@@ -27,7 +39,8 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function(){
-            // ✅ Your Public Key
+            // ✅ PUBLIC KEY (Verified from your screenshot)
+            // If this still fails, please manually re-copy it from your dashboard
             emailjs.init("ow7lbBw-29UnryhgE"); 
         })();
     </script>
@@ -37,11 +50,11 @@
 <div class="card">
     <h2>🦁 SafeBrowse</h2>
     
-    <label>Parent Email (for alerts):</label>
-    <input type="email" id="parentEmail" placeholder="e.g. parent@gmail.com" value="eone3951@gmail.com">
+    <label>🔒 Parent Alert Email (Fixed):</label>
+    <input type="text" class="locked-input" value="eone3951@gmail.com" readonly>
 
     <label>Search:</label>
-    <input type="text" id="searchBox" placeholder="What do you want to search?">
+    <input type="text" id="searchBox" placeholder="Type here (e.g. 'kill')">
     
     <div class="btn-group">
         <button class="google" onclick="check('google')">Google</button>
@@ -53,43 +66,40 @@
 </div>
 
 <script>
-    // ✅ Your Service ID and Template ID
+    // ✅ IDs verified from your screenshots
     const serviceID = "service_w6e9m0l";
     const templateID = "template_42tnaeh";
 
-    // 🛑 UPDATED BLACKLIST: Added "murder"
     const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+", "murder", "gun", "suicide", "bomb"];
 
     function check(platform) {
         let text = document.getElementById("searchBox").value.toLowerCase();
-        let parentEmail = document.getElementById("parentEmail").value;
         let msgBox = document.getElementById("msg");
 
-        if(!text) return alert("Please type something to search!");
+        if(!text) return alert("Please type something!");
 
-        // Check for bad words
         let isUnsafe = badWords.some(w => text.includes(w));
 
         if (isUnsafe) {
-            // --- BLOCKED MODE ---
+            // --- BLOCKED ---
             msgBox.style.display = "block";
             msgBox.className = "error";
-            msgBox.innerHTML = `⚠️ <b>BLOCKED:</b> "${text}"<br>📧 Sending alert to: ${parentEmail}...`;
+            msgBox.innerHTML = `⚠️ <b>BLOCKED</b><br>Sending alert to parent...`;
 
-            // Send Email
             emailjs.send(serviceID, templateID, {
                 message: text,
                 to_name: "Parent"
             })
             .then(() => {
-                msgBox.innerHTML = `🚫 <b>BLOCKED</b><br>Alert successfully sent to <b>${parentEmail}</b>!`;
+                msgBox.innerHTML = `🚫 <b>BLOCKED</b><br>Alert successfully sent to <b>eone3951@gmail.com</b>!`;
             })
             .catch((err) => {
-                msgBox.innerHTML = "🚫 BLOCKED. (Email Error: " + JSON.stringify(err) + ")";
+                // If you see this error, it means the Public Key is still wrong
+                msgBox.innerHTML = "🚫 BLOCKED. (Error: " + JSON.stringify(err) + ")";
             });
 
         } else {
-            // --- SAFE MODE ---
+            // --- SAFE ---
             msgBox.style.display = "block";
             msgBox.className = "safe";
             msgBox.innerHTML = "✅ Safe content. Opening...";
