@@ -3,103 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBrowse Search Engine</title>
+    <title>SafeBrowse Search</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background-color: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
-        h2 { color: #333; margin-bottom: 20px; }
-        .logo { font-size: 40px; margin-bottom: 10px; }
-        
-        input { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: #4CAF50; }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; min-width: 80px; }
-        
-        .btn-google { background-color: #4285F4; }
-        .btn-youtube { background-color: #FF0000; }
-        .btn-wiki { background-color: #000; }
-
-        button:active { transform: scale(0.98); }
-
-        /* Status Messages */
-        #status { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; font-size: 14px; }
-        .safe { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .danger { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; height: 100vh; align-items: center; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 100%; }
+        input { width: 90%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        .google { background: #4285F4; }
+        .youtube { background: #FF0000; }
+        .wiki { background: #000; }
+        #msg { margin-top: 15px; font-size: 14px; display: none; padding: 10px; border-radius: 5px; }
+        .error { background: #ffcccc; color: #cc0000; }
+        .safe { background: #ccffcc; color: #006600; }
     </style>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            // ✅ Your Public Key is here:
+            emailjs.init("ow7lbBw-29UnryhgE"); 
+        })();
+    </script>
 </head>
 <body>
 
-    <div class="container">
-        <div class="logo">🦁</div>
-        <h2>SafeBrowse Kids</h2>
-        <p style="color:#666; font-size: 14px;">Secure Search Dashboard</p>
-
-        <input type="text" id="searchInput" placeholder="What do you want to search?">
-
-        <div class="btn-group">
-            <button class="btn-google" onclick="search('google')">Google</button>
-            <button class="btn-youtube" onclick="search('youtube')">YouTube</button>
-            <button class="btn-wiki" onclick="search('wiki')">Wikipedia</button>
-        </div>
-
-        <div id="status"></div>
+<div class="card">
+    <h2>🦁 SafeBrowse</h2>
+    <p>Safe Search Engine for Kids</p>
+    
+    <input type="text" id="searchBox" placeholder="Search something...">
+    
+    <div class="btn-group">
+        <button class="google" onclick="checkSafe('google')">Google</button>
+        <button class="youtube" onclick="checkSafe('youtube')">YouTube</button>
+        <button class="wiki" onclick="checkSafe('wiki')">Wiki</button>
     </div>
 
-    <script>
-        // 1. The "Blacklist" of bad words
-        const badWords = ["adult", "18+", "porn", "xxx", "nude", "violence", "kill", "drug"];
-        const parentEmail = "parent@example.com"; // Simulation email
+    <div id="msg"></div>
+</div>
 
-        function search(platform) {
-            let query = document.getElementById("searchInput").value.toLowerCase();
-            let statusBox = document.getElementById("status");
+<script>
+    // ✅ Your Service ID and Template ID are here:
+    const serviceID = "service_w6e9m0l";
+    const templateID = "template_42tnaeh";
 
-            // Clear previous status
-            statusBox.style.display = "none";
-            statusBox.className = "";
+    const badWords = ["porn", "xxx", "sex", "kill", "drug", "18+"];
 
-            if (!query) {
-                alert("Please type something to search!");
-                return;
-            }
+    function checkSafe(platform) {
+        let text = document.getElementById("searchBox").value.toLowerCase();
+        let msgBox = document.getElementById("msg");
 
-            // 2. CHECK: Is the search safe?
-            let isUnsafe = badWords.some(word => query.includes(word));
+        // 1. Check for bad words
+        let isUnsafe = badWords.some(word => text.includes(word));
 
-            if (isUnsafe) {
-                // --- DANGER MODE ---
-                statusBox.innerText = "⚠️ BLOCKED! Suspicious content detected.\n📧 Automatic Alert sent to: " + parentEmail;
-                statusBox.className = "danger";
-                statusBox.style.display = "block";
-                
-                // Simulate sending email (For Prototype Presentation)
-                console.log("Sending email data to server..."); 
-                
-                // OPTIONAL: If you configure EmailJS later, the real sending code goes here.
-                
-            } else {
-                // --- SAFE MODE ---
-                statusBox.innerText = "✅ Safe. Redirecting to " + platform + "...";
-                statusBox.className = "safe";
-                statusBox.style.display = "block";
+        if (isUnsafe) {
+            // BLOCK IT & SEND EMAIL
+            msgBox.style.display = "block";
+            msgBox.className = "error";
+            msgBox.innerHTML = "⚠️ Unsafe content! Sending alert to parent...";
 
-                // Wait 1 second so user sees the "Safe" message, then go to the site
-                setTimeout(() => {
-                    if(platform === 'google') {
-                        window.location.href = "https://www.google.com/search?q=" + query;
-                    } else if (platform === 'youtube') {
-                        window.location.href = "https://www.youtube.com/results?search_query=" + query;
-                    } else if (platform === 'wiki') {
-                        window.location.href = "https://en.wikipedia.org/wiki/" + query;
-                    }
-                }, 1000);
-            }
+            // Send Email Function
+            emailjs.send(serviceID, templateID, {
+                message: text,  // This sends the bad word to the parent
+                to_name: "Parent"
+            })
+            .then(function() {
+                msgBox.innerHTML = "🚫 BLOCKED. Alert sent to parent's email.";
+            }, function(error) {
+                msgBox.innerHTML = "🚫 BLOCKED. (Email failed: " + JSON.stringify(error) + ")";
+            });
+
+        } else {
+            // ALLOW IT
+            msgBox.style.display = "block";
+            msgBox.className = "safe";
+            msgBox.innerHTML = "✅ Safe search. Opening...";
+            
+            setTimeout(() => {
+                if(platform === 'google') window.location.href = "https://www.google.com/search?q=" + text;
+                if(platform === 'youtube') window.location.href = "https://www.youtube.com/results?search_query=" + text;
+                if(platform === 'wiki') window.location.href = "https://en.wikipedia.org/wiki/" + text;
+            }, 1000);
         }
-    </script>
+    }
+</script>
 
 </body>
 </html>
-
